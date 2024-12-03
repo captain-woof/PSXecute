@@ -47,9 +47,11 @@ make
 
 Edit `Payload/src/main.c` and hit `./compile.sh` in `Payload`.
 
-You may need to compile the LLVM passes first. If you import a function from a DLL, you need to add it in [/Transpiler/dllmapping.h](./Transpiler/dllmapping.h) and then recompile the passes.
+You may need to compile the LLVM passes first:
 
 ```bash
 cd Transpiler
 ./compile.sh
 ```
+
+If you import a function from a DLL, you need to add it in [/Transpiler/dllmapping.h](./Transpiler/dllmapping.h) and then recompile the passes.
