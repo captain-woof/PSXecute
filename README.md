@@ -34,6 +34,10 @@ A collection of LLVM passes in [/Transpiler/passes](./Transpiler/passes) enable 
 
 I do not care about OPSEC or anything, if one needs that, one should inspect the shellcodes and see where there are improvements ;) this is just a fun project to show that it does not have to be RISC-V. With that being said, shout out to the [riscy business blogpost](https://secret.club/2023/12/24/riscy-business.html). I was sleeping on LLVM and initially hacked together a call bridge that wasn't ideal until I went the transpiler route. If you write your own offensive VM, I suppose you should do the same.
 
+# Installation and Usage
+
+The compilation will likely only work from Linux, tested on Debian. You need `llvm` and a `mipsel-unknown-linux-gnu` toolchain to do the final linking. I used [crosstool-ng](https://github.com/crosstool-ng/crosstool-ng) to generate the latter.
+
 ### Compiling the VM
 
 ```bash
