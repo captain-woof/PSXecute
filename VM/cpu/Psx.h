@@ -10,8 +10,8 @@
 #endif
 #include <windows.h>
 
-#define MEMORY_SIZE 0xFFF
-#define STACK_START 0x40000F00
+#define MEMORY_SIZE        0xFFF
+#define STACK_START        0x40000F00
 #define TARGET_MEMORY_ADDR 0x40000000
 
 #define NREGISTERS 32
@@ -57,7 +57,7 @@ typedef enum
 struct LoadRegister
 {
     RegisterIndex registerIndex;
-    uint32_t value;
+    uint32_t      value;
 };
 
 enum Exception
@@ -85,8 +85,9 @@ class PSX
     {
         // To pass arguments between the emulator and the host, we want to allocate emulated memory
         // at a specific address Specify a reasonable desired address, e.g., 0x40000000
-        this->memory = (unsigned char *)VirtualAlloc((void *)TARGET_MEMORY_ADDR, MEMORY_SIZE, MEM_RESERVE | MEM_COMMIT,
-                                                     PAGE_READWRITE);
+        this->memory = (unsigned char *)VirtualAlloc(
+            (void *)TARGET_MEMORY_ADDR, MEMORY_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE
+        );
         if (this->memory == nullptr)
             return;
 
@@ -119,7 +120,7 @@ class PSX
 
    private:
     unsigned char *memory;
-    bool DEBUG = true;
+    bool           DEBUG = true;
 
     bool panic = false;
 
@@ -150,13 +151,13 @@ class PSX
     }
     uint32_t GetRegister(const int &i) const;
     uint32_t GetRegister(const RegisterIndex &t) const;
-    void SetRegister(const RegisterIndex &t, const uint32_t &v);
+    void     SetRegister(const RegisterIndex &t, const uint32_t &v);
 
     void Store8(const uint32_t &address, const uint8_t &value);
     void Store16(const uint32_t &address, const uint16_t &value);
     void Store32(const uint32_t &address, const uint32_t &value);
 
-    uint8_t Load8(const uint32_t &address) const;
+    uint8_t  Load8(const uint32_t &address) const;
     uint16_t Load16(const uint32_t &address) const;
     uint32_t Load32(const uint32_t &address) const;
 
@@ -245,8 +246,9 @@ class PSX
     {
         for (int i = addr; i < addr + length; ++i)
         {
-            printf("0x%lx:\t%c (0x%lx)\n", i, this->memory[i - TARGET_MEMORY_ADDR],
-                   this->memory[i - TARGET_MEMORY_ADDR]);
+            printf(
+                "0x%lx:\t%c (0x%lx)\n", i, this->memory[i - TARGET_MEMORY_ADDR], this->memory[i - TARGET_MEMORY_ADDR]
+            );
         }
     }
     void DbgDisplayStack() const

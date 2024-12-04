@@ -28,20 +28,22 @@ struct ChangeTargetTriplePass : public PassInfoMixin<ChangeTargetTriplePass>
 
 llvm::PassPluginLibraryInfo getChangeTargetTriplePassPluginInfo()
 {
-    return {LLVM_PLUGIN_API_VERSION, "ChangeTriplePass", LLVM_VERSION_STRING,
-            [](PassBuilder &PB)
-            {
-                PB.registerPipelineParsingCallback(
-                    [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
+    return {
+        LLVM_PLUGIN_API_VERSION, "ChangeTriplePass", LLVM_VERSION_STRING,
+        [](PassBuilder &PB)
+        {
+            PB.registerPipelineParsingCallback(
+                [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
+                {
+                    if (Name == "change-triple")
                     {
-                        if (Name == "change-triple")
-                        {
-                            MPM.addPass(ChangeTargetTriplePass());
-                            return true;
-                        }
-                        return false;
-                    });
-            }};
+                        MPM.addPass(ChangeTargetTriplePass());
+                        return true;
+                    }
+                    return false;
+                }
+            );
+        }};
 }
 
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()

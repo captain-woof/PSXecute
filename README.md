@@ -30,7 +30,7 @@ Example payloads are available in [/Payload/examples/](./Payload/examples).
 
 ![img.png](img.png)
 
-A collection of LLVM passes in [/Transpiler/passes](./Transpiler/passes) enable a payload to be written in "normal" C with e.g. Windows headers included. The payload is then compiled to LLVM bitcode, function calls are replaced with calls to the emulator's syscall-bridge, the bitcode is retargeted to MIPS and then finally compiled and linked to an ELF. Finally, the .text section is extracted and the resulting shellcode can be execute using the [VM](./VM). 
+A collection of LLVM passes in [/Transpiler/passes](./Transpiler/passes) enable a payload to be written in "normal" C with e.g. Windows headers included. The payload is then compiled to LLVM bitcode, function calls are replaced with calls to the emulator's syscall-bridge, the bitcode is retargeted to MIPS and then compiled and linked to an ELF. Finally, the .text section is extracted and the resulting shellcode can be executed using the [VM](./VM). 
 
 I do not care about OPSEC or anything, if one needs that, one should inspect the shellcodes and see where there are improvements ;) this is just a fun project to show that it does not have to be RISC-V. With that being said, shout out to the [riscy business blogpost](https://secret.club/2023/12/24/riscy-business.html). I was sleeping on LLVM and initially hacked together a call bridge that wasn't ideal until I went the transpiler route. If you write your own offensive VM, I suppose you should do the same.
 

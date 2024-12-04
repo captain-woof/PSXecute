@@ -5,3 +5,10 @@ BreakBeforeBraces: Allman  # Place opening braces on new lines (Allman style)
 AllowShortIfStatementsOnASingleLine: false  # Force multi-line if statements
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: false
+
+AlignAfterOpenBracket: BlockIndent
+AlignConsecutiveBitFields: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
+AlignEscapedNewlines: Left
+AlignTrailingComments: true

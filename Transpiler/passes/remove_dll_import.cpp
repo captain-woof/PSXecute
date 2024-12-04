@@ -46,20 +46,22 @@ struct RemoveDllImportPass : public PassInfoMixin<RemoveDllImportPass>
 
 llvm::PassPluginLibraryInfo getRemoveDllImportPassPluginInfo()
 {
-    return {LLVM_PLUGIN_API_VERSION, "RemoveDllImportPass", LLVM_VERSION_STRING,
-            [](PassBuilder &PB)
-            {
-                PB.registerPipelineParsingCallback(
-                    [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
+    return {
+        LLVM_PLUGIN_API_VERSION, "RemoveDllImportPass", LLVM_VERSION_STRING,
+        [](PassBuilder &PB)
+        {
+            PB.registerPipelineParsingCallback(
+                [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
+                {
+                    if (Name == "remove-dllimport")
                     {
-                        if (Name == "remove-dllimport")
-                        {
-                            MPM.addPass(RemoveDllImportPass());
-                            return true;
-                        }
-                        return false;
-                    });
-            }};
+                        MPM.addPass(RemoveDllImportPass());
+                        return true;
+                    }
+                    return false;
+                }
+            );
+        }};
 }
 
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()

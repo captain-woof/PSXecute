@@ -31,20 +31,22 @@ struct ChangeMetadataPass : public PassInfoMixin<ChangeMetadataPass>
 
 llvm::PassPluginLibraryInfo getChangeMetadataPassPluginInfo()
 {
-    return {LLVM_PLUGIN_API_VERSION, "ChangeMetadataPass", LLVM_VERSION_STRING,
-            [](PassBuilder &PB)
-            {
-                PB.registerPipelineParsingCallback(
-                    [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
+    return {
+        LLVM_PLUGIN_API_VERSION, "ChangeMetadataPass", LLVM_VERSION_STRING,
+        [](PassBuilder &PB)
+        {
+            PB.registerPipelineParsingCallback(
+                [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
+                {
+                    if (Name == "change-metadata")
                     {
-                        if (Name == "change-metadata")
-                        {
-                            MPM.addPass(ChangeMetadataPass());
-                            return true;
-                        }
-                        return false;
-                    });
-            }};
+                        MPM.addPass(ChangeMetadataPass());
+                        return true;
+                    }
+                    return false;
+                }
+            );
+        }};
 }
 
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()

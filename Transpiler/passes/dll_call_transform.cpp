@@ -48,14 +48,15 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
 
         // Declare the PSX_CALL function
         LLVMContext &context = M.getContext();
-        Type *intType = Type::getInt32Ty(context);
-        Type *stringType = Type::getInt8PtrTy(context);
+        Type        *intType = Type::getInt32Ty(context);
+        Type        *stringType = Type::getInt8PtrTy(context);
 
         // PSX_CALL(char* dllName, char* funcName, int numArgs, ...)
         FunctionType *psxCallType = FunctionType::get(
             /* Return Type */ Type::getInt8PtrTy(context),
             /* Params */ {stringType, stringType, intType},
-            /* IsVarArg */ true);
+            /* IsVarArg */ true
+        );
         FunctionCallee psxCallCallee = M.getOrInsertFunction("PSX_CALL", psxCallType);
 
         // for each function in module
@@ -111,7 +112,7 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
 
                 // Prepare arguments for PSX_CALL
                 std::vector<Value *> psxCallArgs;
-                Value *dllNameVal = builder.CreateGlobalStringPtr(dllName);
+                Value               *dllNameVal = builder.CreateGlobalStringPtr(dllName);
                 psxCallArgs.push_back(dllNameVal);
                 Value *funcNameVal = builder.CreateGlobalStringPtr(originalFuncName);
                 psxCallArgs.push_back(funcNameVal);
@@ -125,7 +126,7 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
                     builder.CreateCall(psxCallCallee.getFunctionType(), psxCallCallee.getCallee(), psxCallArgs);
 
                 // Cast the return value of PSX_CALL if necessary
-                Type *expectedReturnType = CI->getType();
+                Type  *expectedReturnType = CI->getType();
                 Value *castedValue = newCall;
 
                 if (expectedReturnType != newCall->getType())
@@ -170,18 +171,20 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
 
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
 {
-    return {LLVM_PLUGIN_API_VERSION, "DLLCallTransformPass", "v0.1",
-            [](PassBuilder &PB)
-            {
-                PB.registerPipelineParsingCallback(
-                    [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
+    return {
+        LLVM_PLUGIN_API_VERSION, "DLLCallTransformPass", "v0.1",
+        [](PassBuilder &PB)
+        {
+            PB.registerPipelineParsingCallback(
+                [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
+                {
+                    if (Name == "dll-call-transform")
                     {
-                        if (Name == "dll-call-transform")
-                        {
-                            MPM.addPass(DLLCallTransformPass());
-                            return true;
-                        }
-                        return false;
-                    });
-            }};
+                        MPM.addPass(DLLCallTransformPass());
+                        return true;
+                    }
+                    return false;
+                }
+            );
+        }};
 }
