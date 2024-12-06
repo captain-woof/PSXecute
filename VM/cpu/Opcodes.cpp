@@ -100,14 +100,6 @@ void PSX::OP_LW(const Instruction &instruction)
         return Interrupt(LoadAddressError);
     }
 
-    // TODO: workaround. debug _start epilogue
-    if (address <= 0xFFFF)
-    {
-        printf("INVALID ADDR. 0x%lx\n", address);
-        this->load = {t, 0};
-        return;
-    }
-
     auto value = this->Load32(address);
 
     // simulate loading delay by putting into laod registers

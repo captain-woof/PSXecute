@@ -1,8 +1,7 @@
-#ifdef _DEBUG
-#include <iostream>
-#endif
+#include <stdio.h>
 
 #include <cassert>
+#include <memoryapi.h>
 
 #include "Instruction.h"
 #include "Psx.h"
@@ -12,6 +11,12 @@ typedef int(__stdcall *FunctionPtr1)(int);
 typedef int(__stdcall *FunctionPtr2)(int, int);
 typedef int(__stdcall *FunctionPtr3)(int, int, int);
 typedef int(__stdcall *FunctionPtr4)(int, int, int, int);
+typedef int(__stdcall *FunctionPtr5)(int, int, int, int, int);
+typedef int(__stdcall *FunctionPtr6)(int, int, int, int, int, int);
+typedef int(__stdcall *FunctionPtr7)(int, int, int, int, int, int, int);
+typedef int(__stdcall *FunctionPtr8)(int, int, int, int, int, int, int, int);
+typedef int(__stdcall *FunctionPtr9)(int, int, int, int, int, int, int, int, int);
+typedef int(__stdcall *FunctionPtr10)(int, int, int, int, int, int, int, int, int, int);
 
 bool PSX::RunNextInstruction()
 {
@@ -56,34 +61,72 @@ bool PSX::RunNextInstruction()
     return true;
 }
 
+bool PSX::ProbeMemory(void *addr) const
+{
+    MEMORY_BASIC_INFORMATION mbi;
+
+    if (VirtualQuery(addr, &mbi, sizeof(mbi)) == 0)
+    {
+        return false;
+    }
+
+    if (mbi.State != MEM_COMMIT || !(mbi.Protect & (PAGE_READWRITE | PAGE_WRITECOPY)))
+    {
+        return false;  // Memory is either not committed or not writable
+    }
+
+    return true;
+}
+
 uint32_t PSX::Load32(const uint32_t &address) const
 {
-    return *((uint32_t *)address);
-}
+    if (ProbeMemory((void *)address))
+        return *((uint32_t *)address);
 
-void PSX::Store32(const uint32_t &address, const uint32_t &value)
-{
-    *((uint32_t *)address) = value;
-}
-
-void PSX::Store8(const uint32_t &address, const uint8_t &value)
-{
-    *(BYTE *)address = value;
-}
-
-uint8_t PSX::Load8(const uint32_t &address) const
-{
-    return *(BYTE *)address;
-}
-
-void PSX::Store16(const uint32_t &address, const uint16_t &value)
-{
-    *((uint16_t *)address) = value;
+    printf("LOAD32:STUB_Invalid_memory_access:0x%lx\n", address);
+    return 0;
 }
 
 uint16_t PSX::Load16(const uint32_t &address) const
 {
-    return *(uint16_t *)address;
+    if (ProbeMemory((void *)address))
+        return *(uint16_t *)address;
+
+    printf("LOAD16:STUB_Invalid_memory_access:0x%lx\n", address);
+    return 0;
+}
+
+uint8_t PSX::Load8(const uint32_t &address) const
+{
+    if (ProbeMemory((void *)address))
+        return *(BYTE *)address;
+
+    printf("LOAD8:STUB_Invalid_memory_access:0x%lx\n", address);
+    return 0;
+}
+
+void PSX::Store32(const uint32_t &address, const uint32_t &value)
+{
+    if (ProbeMemory((void *)address))
+        *((uint32_t *)address) = value;
+    else
+        printf("STORE32:STUB_Invalid_memory_access:0x%lx\n", address);
+}
+
+void PSX::Store16(const uint32_t &address, const uint16_t &value)
+{
+    if (ProbeMemory((void *)address))
+        *((uint16_t *)address) = value;
+    else
+        printf("STORE16:STUB_Invalid_memory_access:0x%lx\n", address);
+}
+
+void PSX::Store8(const uint32_t &address, const uint8_t &value)
+{
+    if (ProbeMemory((void *)address))
+        *(BYTE *)address = value;
+    else
+        printf("STORE8:STUB_Invalid_memory_access:0x%lx\n", address);
 }
 
 void PSX::DecodeAndExecute(const Instruction &instruction)
@@ -194,10 +237,37 @@ void PSX::Interrupt(const Exception &interrupt)
     switch (SSN)
     {
         case 47: /* HOST_CALL */ HostCall(); break;
-        case 4: /* PRINT */
-            printf("%s", (char *)this->GetRegister(4));
+        case 0: /* PRINT */
+            printf("%s", (char *)this->GetRegister(A0));
             this->next_pc = this->GetRegister(RA);
             break;
+        case 1: /* PRINTF_1 */
+            // printf("%s: 0x%lx\n", (char *)this->GetRegister(A0), this->GetRegister(A1));
+            printf((char *)this->GetRegister(A0), this->GetRegister(A1));
+            this->next_pc = this->GetRegister(RA);
+            break;
+        case 2: /* PRINTF_2 */
+            // printf("%s: 0x%lx, 0x%lx\n", (char *)this->GetRegister(A0), this->GetRegister(A1),
+            // this->GetRegister(A2));
+            printf((char *)this->GetRegister(A0), this->GetRegister(A1), this->GetRegister(A2));
+            this->next_pc = this->GetRegister(RA);
+            break;
+        case 3: /* PRINTF_3 */
+            // printf("%s: 0x%lx, 0x%lx, 0x%lx\n", (char *)this->GetRegister(A0), this->GetRegister(A1),
+            // this->GetRegister(A2), this->GetRegister(A3)); this->DbgDumpMemory(this->GetRegister(A1), 30);
+            printf((char *)this->GetRegister(A0), this->GetRegister(A1), this->GetRegister(A2), this->GetRegister(A3));
+            this->next_pc = this->GetRegister(RA);
+            break;
+        case 4: /* PRINTF_4 */
+        {
+            auto stackArg = this->Load32(this->regs[SP] + 16);
+            printf(
+                (char *)this->GetRegister(A0), this->GetRegister(A1), this->GetRegister(A2), this->GetRegister(A3),
+                stackArg
+            );
+            this->next_pc = this->GetRegister(RA);
+            break;
+        }
         default: printf("[!] Unhandled Syscall %i", SSN); Panic();
     }
 }
@@ -205,8 +275,8 @@ void PSX::Interrupt(const Exception &interrupt)
 void PSX::HostCall()
 {
     // Load module and get function address
-    auto dll = (char *)this->GetRegister(4);
-    auto function = (char *)this->GetRegister(5);
+    auto dll = (char *)this->GetRegister(A0);
+    auto function = (char *)this->GetRegister(A1);
     auto hModule = LoadLibraryA(dll);
     if (hModule == 0)
     {
@@ -219,7 +289,7 @@ void PSX::HostCall()
         printf("Error resolving function: %s\n", function);
         this->Panic();
     }
-    auto nargs = this->GetRegister(6);
+    auto nargs = this->GetRegister(A2);
 
     // printf("VM_host_call: %s->%s (%i args)\n", dll, function, nargs);
 
@@ -234,7 +304,7 @@ void PSX::HostCall()
     else
     {
         // the actual argument 1 (4) is still in a register
-        int arg1 = GetRegister(7);
+        int arg1 = GetRegister(A3);
 
         // the rest is on the stack
         auto stackpointer = this->regs[SP];
@@ -262,9 +332,76 @@ void PSX::HostCall()
                 auto arg2 = this->Load32(stackpointer + 16);
                 auto arg3 = this->Load32(stackpointer + 20);
                 auto arg4 = this->Load32(stackpointer + 24);
-
-                /* Invoke */
                 ret = ((FunctionPtr4)pProc)(arg1, arg2, arg3, arg4);
+                break;
+            }
+            case 5:
+            {
+                auto arg2 = this->Load32(stackpointer + 16);
+                auto arg3 = this->Load32(stackpointer + 20);
+                auto arg4 = this->Load32(stackpointer + 24);
+                auto arg5 = this->Load32(stackpointer + 28);
+                ret = ((FunctionPtr5)pProc)(arg1, arg2, arg3, arg4, arg5);
+                break;
+            }
+            case 6:
+            {
+                auto arg2 = this->Load32(stackpointer + 16);
+                auto arg3 = this->Load32(stackpointer + 20);
+                auto arg4 = this->Load32(stackpointer + 24);
+                auto arg5 = this->Load32(stackpointer + 28);
+                auto arg6 = this->Load32(stackpointer + 32);
+                ret = ((FunctionPtr6)pProc)(arg1, arg2, arg3, arg4, arg5, arg6);
+                break;
+            }
+            case 7:
+            {
+                auto arg2 = this->Load32(stackpointer + 16);
+                auto arg3 = this->Load32(stackpointer + 20);
+                auto arg4 = this->Load32(stackpointer + 24);
+                auto arg5 = this->Load32(stackpointer + 28);
+                auto arg6 = this->Load32(stackpointer + 32);
+                auto arg7 = this->Load32(stackpointer + 36);
+                ret = ((FunctionPtr7)pProc)(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                break;
+            }
+            case 8:
+            {
+                auto arg2 = this->Load32(stackpointer + 16);
+                auto arg3 = this->Load32(stackpointer + 20);
+                auto arg4 = this->Load32(stackpointer + 24);
+                auto arg5 = this->Load32(stackpointer + 28);
+                auto arg6 = this->Load32(stackpointer + 32);
+                auto arg7 = this->Load32(stackpointer + 36);
+                auto arg8 = this->Load32(stackpointer + 40);
+                ret = ((FunctionPtr8)pProc)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                break;
+            }
+            case 9:
+            {
+                auto arg2 = this->Load32(stackpointer + 16);
+                auto arg3 = this->Load32(stackpointer + 20);
+                auto arg4 = this->Load32(stackpointer + 24);
+                auto arg5 = this->Load32(stackpointer + 28);
+                auto arg6 = this->Load32(stackpointer + 32);
+                auto arg7 = this->Load32(stackpointer + 36);
+                auto arg8 = this->Load32(stackpointer + 40);
+                auto arg9 = this->Load32(stackpointer + 44);
+                ret = ((FunctionPtr9)pProc)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                break;
+            }
+            case 10:
+            {
+                auto arg2 = this->Load32(stackpointer + 16);
+                auto arg3 = this->Load32(stackpointer + 20);
+                auto arg4 = this->Load32(stackpointer + 24);
+                auto arg5 = this->Load32(stackpointer + 28);
+                auto arg6 = this->Load32(stackpointer + 32);
+                auto arg7 = this->Load32(stackpointer + 36);
+                auto arg8 = this->Load32(stackpointer + 40);
+                auto arg9 = this->Load32(stackpointer + 44);
+                auto arg10 = this->Load32(stackpointer + 48);
+                ret = ((FunctionPtr10)pProc)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
                 break;
             }
             default: printf("Narg %i not implemented\n", nargs); this->Panic();

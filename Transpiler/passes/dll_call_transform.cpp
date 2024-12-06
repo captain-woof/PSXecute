@@ -17,6 +17,11 @@
 
 using namespace llvm;
 
+bool startsWith(const std::string &str, const std::string &prefix)
+{
+    return str.substr(0, prefix.size()) == prefix;
+}
+
 std::string recoverMicrosoftSymbol(const std::string &DecoratedName)
 {
     if (DecoratedName[1] == '_')
@@ -57,7 +62,7 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
             /* Params */ {stringType, stringType, intType},
             /* IsVarArg */ true
         );
-        FunctionCallee psxCallCallee = M.getOrInsertFunction("PSX_CALL", psxCallType);
+        FunctionCallee psxCallCallee = M.getOrInsertFunction("_PSX_CALL", psxCallType);
 
         // for each function in module
         for (auto &F : M)
@@ -90,7 +95,33 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
             {
                 Function *originalFunc = CI->getCalledFunction();
 
+                // Recover from microsoft symbol
                 auto originalFuncName = recoverMicrosoftSymbol(originalFunc->getName().str());
+
+                // Recover from llvm symbol (e.g. llvm.memset.p0i8.i32)
+                if (startsWith(originalFuncName, std::string("llvm.")))
+                {
+                    size_t dotPos = originalFuncName.find('.');
+                    if (dotPos != std::string::npos)
+                    {
+                        size_t secondDotPos = originalFuncName.find('.', dotPos + 1);
+                        if (secondDotPos != std::string::npos)
+                        {
+                            originalFuncName = originalFuncName.substr(dotPos + 1, secondDotPos - dotPos - 1);
+                        }
+                        else
+                        {
+                            originalFuncName = originalFuncName.substr(dotPos + 1, originalFuncName.size());
+                        }
+                    }
+                }
+
+                // recover from mingw symbol (__mingw_*)
+                if (startsWith(originalFuncName, std::string("__mingw_")))
+                {
+                    originalFuncName = originalFuncName.substr(std::string("__mingw_").size(), originalFuncName.size());
+                }
+
                 // Get the module name (DLL name)
                 std::string dllName;
                 if (!originalFunc->getName().empty())
@@ -102,7 +133,7 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
                     continue;
                 }
 
-                if (originalFuncName == "PSX_PRINT")
+                if (startsWith(originalFuncName, std::string("_PSX_")))
                     continue;
 
                 std::cout << "Replacing: " << dllName << " " << originalFuncName << std::endl;
@@ -131,7 +162,11 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
 
                 if (expectedReturnType != newCall->getType())
                 {
-                    if (expectedReturnType->isPointerTy())
+                    if (expectedReturnType->isVoidTy())
+                    {
+                        // No return value for void functions
+                    }
+                    else if (expectedReturnType->isPointerTy())
                     {
                         // cast to specific pointer type
                         castedValue = builder.CreateBitCast(newCall, expectedReturnType, "casted");

@@ -7,13 +7,13 @@
 
 #include "../../src/psxecute.h"
 
-void start()
+int start()
 {
-    void* heap = GetProcessHeap();
-    char* fullName = (char*)HeapAlloc(heap, 0x0, 256);
-    int   fullNameLen = 256;
+    char*         fullName = (char*)malloc(256);
+    unsigned long fullNameLen = 256;
 
     GetUserNameExA(NAM_SAM_COMPAT, fullName, &fullNameLen);
     PSX_PRINT(fullName);
     PSX_PRINT("\n");
+    return 0;
 }

@@ -12,21 +12,28 @@ An example payload to get the current username and domain and print it to the ho
 
 #define NAM_SAM_COMPAT 2
 
-#include "../src/psxecute.h"
+#include "psxecute.h"
 
-void start() 
+int start()
 {
-    void* heap = GetProcessHeap();
-    char* fullName = (char*)HeapAlloc(heap, 0x0, 256);
-    int fullNameLen = 256;
-
+    char* fullName = (char*)malloc(256);
+    unsigned long fullNameLen = 256;
     GetUserNameExA(NAM_SAM_COMPAT, fullName, &fullNameLen);
-    PSX_PRINT(fullName); /* Print from the emulator to the host */
-    PSX_PRINT("\n");
+    PSX_PRINTF_1("%s\n", fullName);
+    return 0;
 }
 ```
 
-Example payloads are available in [/Payload/examples/](./Payload/examples).
+Example payloads are available in [/Payload/examples/](./Payload/examples):
+
+| Example | Path |
+| --- | --- |
+| Create a process | (./Payload/examples/createprocess/createprocess.c) |
+| Whoami | (./Payload/examples/whoami/whoami.c) |
+| Pop a msgbox | (./Payload/examples/msgbox/msgbox.c) |
+| List running processes | (./Payload/examples/ps/ps.c) |
+| List directories | (./Payload/examples/dir/dir.c) |
+| Get OS info | (./Payload/examples/osinfo/osinfo.c) |
 
 ![img.png](img.png)
 
@@ -58,4 +65,4 @@ cd Transpiler
 ./compile.sh
 ```
 
-If you import a function from a DLL, you need to add it in [/Transpiler/dllmapping.h](./Transpiler/dllmapping.h) and then recompile the passes.
+If you import a function from a DLL that is not present in [/Transpiler/dllmapping.h](./Transpiler/dllmapping.h) you need to add it and then recompile the passes (most functions should be there already though).

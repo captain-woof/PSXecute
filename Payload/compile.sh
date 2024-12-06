@@ -14,8 +14,9 @@ llc -filetype=obj -o output.o output.bc
 /home/me/x-tools/mipsel-unknown-linux-gnu/bin/mipsel-unknown-linux-gnu-gcc \
     -nostdlib -fvisibility=hidden -march=r3000 \
     -msoft-float -mabi=32 -mips1 -mno-abicalls -mlong-calls -G0 \
+    -fPIE \
     -T aux/linker.ld -o payload output.o
 echo "[*] Extractng shellcode..."
 python3 ./aux/extract.py payload
-echo "[*] Dumping shellcode..."
-xxd -i payload.bin
+#echo "[*] Dumping shellcode..."
+#xxd -i payload.bin

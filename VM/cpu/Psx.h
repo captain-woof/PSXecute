@@ -1,17 +1,12 @@
 #pragma once
 
-#include <exception>
+#include <stdio.h>
+#include <windows.h>
 
 #include "Instruction.h"
 
-#ifndef _DEBUG
-#define _DEBUG
-#include <stdio.h>
-#endif
-#include <windows.h>
-
-#define MEMORY_SIZE        0xFFF
-#define STACK_START        0x40000F00
+#define MEMORY_SIZE        0x1FFFF
+#define STACK_START        0x4000FF00
 #define TARGET_MEMORY_ADDR 0x40000000
 
 #define NREGISTERS 32
@@ -165,6 +160,7 @@ class PSX
     void Interrupt(const Exception &interrupt);
     void DecodeAndExecute(const Instruction &instruction);
 
+    bool ProbeMemory(void *addr) const;
     void HostCall();
 
     // opcodes
