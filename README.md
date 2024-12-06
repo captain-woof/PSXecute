@@ -28,12 +28,12 @@ Example payloads are available in [/Payload/examples/](./Payload/examples):
 
 | Example | Path |
 | --- | --- |
-| Create a process | (./Payload/examples/createprocess/createprocess.c) |
-| Whoami | (./Payload/examples/whoami/whoami.c) |
-| Pop a msgbox | (./Payload/examples/msgbox/msgbox.c) |
-| List running processes | (./Payload/examples/ps/ps.c) |
-| List directories | (./Payload/examples/dir/dir.c) |
-| Get OS info | (./Payload/examples/osinfo/osinfo.c) |
+| Create a process | [createprocess.c](./Payload/examples/createprocess/createprocess.c) |
+| Whoami | [whoami.c](./Payload/examples/whoami/whoami.c) |
+| Pop a msgbox | [msgbox.c](./Payload/examples/msgbox/msgbox.c) |
+| List running processes | [ps.c](./Payload/examples/ps/ps.c) |
+| List directories | [dir.c](./Payload/examples/dir/dir.c) |
+| Get OS info | [osinfo.c](./Payload/examples/osinfo/osinfo.c) |
 
 ![img.png](img.png)
 
