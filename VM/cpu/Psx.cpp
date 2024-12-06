@@ -1,10 +1,11 @@
+#include "Psx.h"
+
+#include <memoryapi.h>
 #include <stdio.h>
 
 #include <cassert>
-#include <memoryapi.h>
 
 #include "Instruction.h"
-#include "Psx.h"
 
 typedef int(__stdcall *FunctionPtr0)();
 typedef int(__stdcall *FunctionPtr1)(int);
