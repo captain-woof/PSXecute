@@ -6,14 +6,11 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 set (CMAKE_C_FLAGS "-m32")
-set (CMAKE_CXX_FLAGS "-m32 -Wno-shift-count-overflow")
+set (CMAKE_CXX_FLAGS "-m32 -Wno-shift-count-overflow -Os -fno-exceptions -fomit-frame-pointer -s -flto")
 set(CMAKE_C_COMPILER i686-w64-mingw32-gcc)
 set(CMAKE_CXX_COMPILER i686-w64-mingw32-g++)
 set(CMAKE_EXE_LINKER_FLAGS "-static-libstdc++ -static-libgcc")
 
-# debug build by default
-set(CMAKE_BUILD_TYPE Debug)
-add_definitions(-D_DEBUG)
 
 add_executable(PSXecute
     main.cpp

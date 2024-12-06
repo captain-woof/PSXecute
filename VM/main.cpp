@@ -7,7 +7,8 @@ std::pair<unsigned char*, size_t> ReadFile(char* filename)
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file.is_open())
     {
-        throw std::runtime_error("Unable to open file");
+        printf("Unable to open file\n");
+        return std::make_pair(nullptr, 0);
     }
 
     size_t fileSize = file.tellg();
@@ -23,11 +24,14 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        printf("Usage: psxecute.exe .\\payload.bin");
+        printf("Usage: psxecute.exe .\\payload.bin\n");
         return 1;
     }
 
     std::pair<unsigned char*, size_t> file = ReadFile(argv[1]);
+    if (file.second == 0)
+        return 1;
+
     printf("[*] Payload loaded\n");
     PSX psx = PSX(file.first, file.second);
 
