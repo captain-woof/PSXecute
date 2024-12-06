@@ -26,7 +26,7 @@ int start()
 
 Example payloads are available in [/Payload/examples/](./Payload/examples):
 
-| Example | Path |
+| Example | Src |
 | --- | --- |
 | Create a process | [createprocess.c](./Payload/examples/createprocess/createprocess.c) |
 | Whoami | [whoami.c](./Payload/examples/whoami/whoami.c) |
