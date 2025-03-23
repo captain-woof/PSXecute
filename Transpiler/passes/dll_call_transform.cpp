@@ -54,11 +54,11 @@ class DLLCallTransformPass : public PassInfoMixin<DLLCallTransformPass>
         // Declare the PSX_CALL function
         LLVMContext &context = M.getContext();
         Type        *intType = Type::getInt32Ty(context);
-        Type        *stringType = Type::getInt8PtrTy(context);
+        Type        *stringType = PointerType::get(Type::getInt8Ty(context), 0);
 
         // PSX_CALL(char* dllName, char* funcName, int numArgs, ...)
         FunctionType *psxCallType = FunctionType::get(
-            /* Return Type */ Type::getInt8PtrTy(context),
+            /* Return Type */ PointerType::get(Type::getInt8Ty(context), 0),
             /* Params */ {stringType, stringType, intType},
             /* IsVarArg */ true
         );

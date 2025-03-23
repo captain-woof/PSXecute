@@ -6,3 +6,5 @@ VM/*.cmake
 VM/*.dir
 VM/*.sln
 VM/x64/*
+Payload/toolchain
+Transpiler/passes/*.so

@@ -11,7 +11,7 @@ opt -load-pass-plugin=../Transpiler/passes/libremove_dll_import.so \
     main.bc -o output.bc
 echo "[*] Compiling and linking..."
 llc -filetype=obj -o output.o output.bc
-/home/me/x-tools/mipsel-unknown-linux-gnu/bin/mipsel-unknown-linux-gnu-gcc \
+mipsel-unknown-linux-gnu-gcc \
     -nostdlib -fvisibility=hidden -march=r3000 \
     -msoft-float -mabi=32 -mips1 -mno-abicalls -mlong-calls -G0 \
     -fPIE \
