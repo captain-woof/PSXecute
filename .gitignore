@@ -7,6 +7,9 @@ VM/*.dir
 VM/*.sln
 VM/x64/*
 Payload/toolchain
-Transpiler/passes/*.so
+**/*/*.so
 VM/build
 BOF/build
+**/*/*.exe
+**/*/*.o
+**/*/*.bin
