@@ -8,3 +8,5 @@ VM/*.sln
 VM/x64/*
 Payload/toolchain
 Transpiler/passes/*.so
+VM/build
+BOF/build

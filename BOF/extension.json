@@ -1,0 +1,38 @@
+{
+    "name": "PSXecute",
+    "version": "1.0.0",
+    "command_name": "psxecute",
+    "extension_author": "realCaptainWoof",
+    "original_author": "eversinc33",
+    "repo_url": "https://github.com/captain-woof/PSXecute",
+    "help": "32bit MIPS I VM to execute payloads without allocating executable memory. Based on a PlayStation 1 (PSX) Emulator.",
+    "long_help": "Starts a MPS I VM, loads your MIPS shellcode, and executes it in the VM memory space. Nothing is written to disk.",
+    "depends_on": "coff-loader",
+    "entrypoint": "go",
+    "files": [
+      {
+        "os": "windows",
+        "arch": "amd64",
+        "path": "psxecute.o"
+      },
+      {
+        "os": "windows",
+        "arch": "386",
+        "path": "psxecute.o"
+      }
+    ],
+    "arguments": [
+      {
+        "name": "psxecute",
+        "desc": "Path to PSXecute.exe to use to launch VM on target",
+        "type": "file",
+        "optional": false
+      },
+      {
+        "name": "payload",
+        "desc": "Payload to run with PSXecute VM on target",
+        "type": "file",
+        "optional": false
+      }
+    ]
+  }
